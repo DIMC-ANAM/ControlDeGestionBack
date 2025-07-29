@@ -111,7 +111,7 @@ async function consultarAsuntosUR(postData) {
     }
 }
 
-async function consultarDetalleAsuntos(postData) {
+async function consultarDetalleAsunto(postData) {
        let response = {};
     try {
 
@@ -136,7 +136,7 @@ async function consultarDetalleAsuntos(postData) {
 module.exports = {
     registrarAsunto,
     consultarAsuntosUR,
-     consultarDetalleAsuntos
+     consultarDetalleAsunto
 
 }
 async function almacenaListaArchivos(list,directorioAnexos,directoryBd,idUsuarioRegistra,idAsunto){
