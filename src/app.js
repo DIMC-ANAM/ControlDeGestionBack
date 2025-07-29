@@ -63,7 +63,7 @@ app.use((req, res, next) => {
 /* API's directory to save all files 
 * (Those are private files)
 */
-app.use('/documents', express.static(__dirname + '/documents')); 
+app.use('/documentos', express.static(__dirname + '/documentos')); 
 
 
 /**

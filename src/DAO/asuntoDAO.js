@@ -76,7 +76,7 @@ async function registrarAsunto(postData) {
                 /* -------------------------------------------------------------------------------------------------- */
             var directorioAnexos = path.resolve(directorioAsunto + `/Anexos`);
             utils.checkDirectorySync(directorioAnexos);
-            var directoryBdAnexos = `documentos/Asuntos/Asunto-${response.model.folio}`;
+            var directoryBdAnexos = `documentos/Asuntos/Asunto-${response.model.folio}/Anexos`;
             /* -------------------------------------------------------------------------------------------------- */
                 let promise = await Promise.all([
                 await almacenaListaArchivos(postData.anexos,directorioAnexos,directoryBdAnexos, postData.idUsuarioRegistra, response.model.idAsunto),
@@ -143,7 +143,10 @@ async function consultarExpedienteAsunto(postData) {
         response = JSON.parse(JSON.stringify(result[0][0]));
         
         if (response.status == 200) {              
-            response.model = JSON.parse(JSON.stringify(result[1][0]));                   
+            response.model ={
+                 documento: JSON.parse(JSON.stringify(result[1][0])),
+                 anexos: JSON.parse(JSON.stringify(result[2])),
+            }
         }
         return response;
     } catch (ex) {
@@ -184,13 +187,11 @@ async function almacenaListaArchivos(list,directorioAnexos,directoryBd,idUsuario
     if(list != null || list.length != 0 ){
 
 
-        let sqlDocumentosRR = `CALL SP_REGISTRAR_DOCUMENTO_ASUNTO(
+        let sqlDocumentos = `CALL SP_REGISTRAR_DOCUMENTO_ASUNTO(
             ?,?,?,
             ?,?,?
         );`;     
-        for (const element of list) { 
-            
-            if(element.idDocumento == undefined){        
+        for (const element of list) {                                 
                 var finalFile = {
                     fileName: directorioAnexos + `/${element.fileName}`,
                     fileNameBd: directoryBd + `/${element.fileName}`, /* quitar tipo de documento si consulta */
@@ -198,16 +199,15 @@ async function almacenaListaArchivos(list,directorioAnexos,directoryBd,idUsuario
                 };            
                 let responseItem = await utils.writeFile(finalFile);            
                 if(responseItem.status == 200){
-                    let resultFileBD3  = await db.query(sqlDocumentosRR, [
+                    let resultFileBD3  = await db.query(sqlDocumentos, [
                         idAsunto,
-                        element.tipoDocumentoRobo,
+                        element.tipoDocumento,
                         element.fileName,
                         finalFile.fileNameBd,
                         element.size,
                         idUsuarioRegistra
                     ]);
-                }
-            }
+                }            
         }   
     }
 }
