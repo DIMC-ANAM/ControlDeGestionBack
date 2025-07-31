@@ -43,6 +43,8 @@ async function consultarDetalleAsunto(req, res) {
 async function consultarExpedienteAsunto(req, res) {
     try {
         const postData = req.body;
+        console.log(postData);
+        
             let data = await asuntoDAO.consultarExpedienteAsunto(postData);
             return res.status(200).json(data);
     } catch (ex) {
