@@ -9,5 +9,7 @@ router.post("/consultarAsuntosUR", token.validateToken, controller.consultarAsun
 router.post("/consultarDetalleAsunto", token.validateToken, controller.consultarDetalleAsunto);
 router.post("/consultarExpedienteAsunto", token.validateToken, controller.consultarExpedienteAsunto);
 router.post("/consultarTurnados", token.validateToken, controller.consultarTurnados);
+router.post("/turnarAsunto", token.validateToken, controller.turnarAsunto);
 
 module.exports = router;
+

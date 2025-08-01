@@ -57,11 +57,41 @@ async function consultarMedioRecepcion(postData) {
         throw ex;
     }
 }
+async function consultarUnidadAdministrativa(postData) {
+    let response = {};
+    try {
+        let sql = `CALL SP_CONSULTAR_UNIDAD_RESPONSABLE(?,?)`;
+        let result = await db.query(sql,[postData.esUnidadAdministrativa || 0 , postData.esUnidadDeNegocio || 0]);
+        response = JSON.parse(JSON.stringify(result[0][0]));
+        if (response.status == 200) {
+            response.model = JSON.parse(JSON.stringify(result[1]));
+        }
+        return response;
+    } catch (ex) {
+        throw ex;
+    }
+}
+async function consultarInstruccion(postData) {
+    let response = {};
+    try {
+        let sql = `CALL SP_CONSULTAR_INSTRUCCION()`;
+        let result = await db.query(sql);
+        response = JSON.parse(JSON.stringify(result[0][0]));
+        if (response.status == 200) {
+            response.model = JSON.parse(JSON.stringify(result[1]));
+        }
+        return response;
+    } catch (ex) {
+        throw ex;
+    }
+}
 
 
 module.exports = {
     consultarTema,
     consultarPrioridad,
     consultarMedioRecepcion,
-    consultarTipoDocumento
+    consultarTipoDocumento,
+    consultarUnidadAdministrativa,
+    consultarInstruccion
 }

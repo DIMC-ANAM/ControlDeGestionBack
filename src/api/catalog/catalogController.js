@@ -37,10 +37,28 @@ async function consultarMedioRecepcion(req, res) {
         res.status(500).json(utils.errorGenerico(ex));
     }
 }
+async function consultarUnidadAdministrativa(req, res) {
+    try {
+        let data = await catalogDAO.consultarUnidadAdministrativa(req.body);
+        return res.status(200).json(data);
+    } catch (ex) {
+        res.status(500).json(utils.errorGenerico(ex));
+    }
+}
+async function consultarInstruccion(req, res) {
+    try {
+        let data = await catalogDAO.consultarInstruccion(req.body);
+        return res.status(200).json(data);
+    } catch (ex) {
+        res.status(500).json(utils.errorGenerico(ex));
+    }
+}
 
 module.exports = {
     consultarTema,
     consultarPrioridad,
     consultarMedioRecepcion,
-    consultarTipoDocumento
+    consultarTipoDocumento,
+    consultarUnidadAdministrativa,
+    consultarInstruccion
 }

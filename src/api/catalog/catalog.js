@@ -16,5 +16,7 @@ router.get("/consultarTema", token.validateToken, controller.consultarTema);
 router.get("/consultarPrioridad", token.validateToken, controller.consultarPrioridad);
 router.get("/consultarTipoDocumento", token.validateToken, controller.consultarTipoDocumento);
 router.get("/consultarMedioRecepcion", token.validateToken, controller.consultarMedioRecepcion);
+router.post("/consultarUnidadAdministrativa", token.validateToken, controller.consultarUnidadAdministrativa);
+router.post("/consultarInstruccion", token.validateToken, controller.consultarInstruccion);
 
 module.exports = router;

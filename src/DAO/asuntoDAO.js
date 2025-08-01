@@ -169,8 +169,7 @@ async function consultarExpedienteAsunto(postData) {
         )`;
 
         let result = await db.query(sql, [postData.idAsunto]);
-        response = JSON.parse(JSON.stringify(result[0][0]));
-        console.log(response);
+        response = JSON.parse(JSON.stringify(result[0][0]));        
 
         if (response.status == 200) {
             response.model = {
@@ -186,7 +185,7 @@ async function consultarExpedienteAsunto(postData) {
 
 async function consultarTurnados(postData) {
     let response = {};
-    try {
+    try {        
 
         let sql = `CALL SP_CONSULTAR_TURNADOS (
             ?
@@ -196,11 +195,52 @@ async function consultarTurnados(postData) {
         response = JSON.parse(JSON.stringify(result[0][0]));
 
         if (response.status == 200) {
-            response.model = JSON.parse(JSON.stringify(result[1][0]));
+            response.model = JSON.parse(JSON.stringify(result[1]));
         }
         return response;
     } catch (ex) {
         throw ex;
+    }
+}
+
+async function turnarAsunto(postData) {
+    let response = {};    
+    try {
+        const sql = `CALL SP_TURNAR_ASUNTO (
+            ?,?,?,?
+        )`;
+
+        for (const element of postData.listaTurnados) {
+            if(element.idTurnado){
+                continue;
+            }
+            const result = await db.query(sql, [
+                element.idAsunto ,
+                element.idUnidadResponsable ,
+                element.idInstruccion ,
+                element.idUsuarioAsigna 
+            ]);
+            
+            // Validar respuesta del procedimiento almacenado
+            if (result[0]?.[0]?.status == 200) {
+                response = { ...result[0][0] };            
+                
+            } else {
+                response = { status: 500, message: 'Error en la ejecución del procedimiento almacenado.' };
+                return;
+            }
+        }
+        return response;
+    } catch (ex) {
+        console.error("Error en registrarAsunto:", ex); // ← Esto es importante para entender qué falla
+        return {
+            status: -1,
+            message: "Ocurrió un error interno, contactar a soporte técnico.",
+            error: {
+                level: "error",
+                timestamp: new Date().toISOString()
+            }
+        };
     }
 }
 
@@ -209,7 +249,8 @@ module.exports = {
     consultarAsuntosUR,
     consultarDetalleAsunto,
     consultarExpedienteAsunto,
-    consultarTurnados
+    consultarTurnados,
+    turnarAsunto
 
 }
 async function almacenaListaArchivos(list, directorioAnexos, directoryBd, idUsuarioRegistra, idAsunto) {

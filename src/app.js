@@ -41,11 +41,11 @@ app.use((req, res, next) => {
      * *Hint: uncomment to see all requests to API, Add as a string the endpoints to the if condition to exclude.  
     */
 
-    /* 
-        if ((!req.url.includes("/example/endpointExample")) || (!req.url.includes("/example/endpointExample"))) {
-            console.log('Entry message |  Endpoint: ' + req.url + ' - Ip Request: ' + req.ip + ' - HTTP Method: ' + req.method + ' - \\n Body Request: ' + body);
-        } 
-    */
+    
+        /* if ((!req.url.includes("/asunto/")) || (!req.url.includes("/asunto/endpointExample"))) {
+            console.log('Entry message |  Endpoint: ' + req.url + ' - Ip Request: ' + req.ip + ' - HTTP Method: ' + req.method + ' - \\n Body Request: ' + req.body);
+        }  */
+   
 
     let response = res.send;
     res.send = function (data) {
@@ -53,7 +53,7 @@ app.use((req, res, next) => {
         /* Show response logs by the API Endpoint 
         * *Hint: uncomment to see all requests to API, Add string endpoints to the if condition to exclude.
         */
-        if (!req.url.includes("/admin/endpoint")) {
+        if (!req.url.includes("consultarAsuntosUR")   &&  !req.url.includes("consultarDetalleAsunto") &&  !req.url.includes("consultarExpedienteAsunto")) {
             console.log('Response message : ' + data)
         }
     }

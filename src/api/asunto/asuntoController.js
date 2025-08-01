@@ -20,6 +20,20 @@ async function registrarAsunto(req, res) {
     }
 }
 
+async function turnarAsunto(req, res) {
+    try {
+        const postData = req.body;
+        if (Object.keys(postData).length !== 0) {
+            let data = await asuntoDAO.turnarAsunto(postData);
+            return res.status(200).json(data);
+        } else {
+            res.status(400).json(utils.postDataInvalido(postData));
+        }
+    } catch (ex) {
+        res.status(500).json(utils.errorGenerico(ex));
+    }
+}
+
 async function consultarAsuntosUR(req, res) {
     try {
         const postData = req.body;
@@ -42,8 +56,7 @@ async function consultarDetalleAsunto(req, res) {
 
 async function consultarExpedienteAsunto(req, res) {
     try {
-        const postData = req.body;
-        console.log(postData);
+        const postData = req.body;       
         
             let data = await asuntoDAO.consultarExpedienteAsunto(postData);
             return res.status(200).json(data);
@@ -61,17 +74,11 @@ async function consultarTurnados(req, res) {
         res.status(500).json(utils.errorGenerico(ex));
     }
 }
-
-
-
-
-
-
-
 module.exports = {
     registrarAsunto,
     consultarAsuntosUR,
     consultarDetalleAsunto,
     consultarExpedienteAsunto,
-    consultarTurnados
+    consultarTurnados,
+    turnarAsunto
 }
