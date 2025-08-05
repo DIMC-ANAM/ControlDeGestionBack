@@ -11,7 +11,7 @@ const Archiver = require("archiver");
 async function consultarTurnados(req, res) {
     try {
         const postData = req.body;
-            let data = await turnadoDAO.consultarTurnados(postData);
+            let data = await turnadoDAO.consultarTurnadosUR(postData);
             return res.status(200).json(data);
     } catch (ex) {
         res.status(500).json(utils.errorGenerico(ex));
