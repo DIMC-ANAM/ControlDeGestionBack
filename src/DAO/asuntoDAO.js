@@ -398,6 +398,54 @@ async function agregarAnexos(postData) {
     }
 }
 
+async function concluirAsunto(postData) {
+    let response = {};
+    try {
+        // 1. Guardar documentos
+        const directorioConclusion = path.resolve(`./src/documentos/Asuntos/Asunto-${postData.folio}/Conclusion`);
+        utils.ensureDirectoryExistsSync(directorioConclusion);
+        const directoryBdConclusion = `documentos/Asuntos/Asunto-${postData.folio}/Conclusion`;
+
+        // Validación: documentos deben existir y guardarse exitosamente
+        if (Array.isArray(postData.documentos) && postData.documentos.length > 0) {
+            const documentosResult = await almacenaListaArchivos(
+                postData.documentos,
+                directorioConclusion,
+                directoryBdConclusion,
+                postData.idUsuario,
+                postData.idAsunto
+            );
+
+            // Si hubo error en el guardado, lo lanzamos y no se ejecuta el SP
+            const resultadoDocumento = documentosResult[0];
+            if (resultadoDocumento.error) {
+                throw new Error(`Error al guardar documentos: ${resultadoDocumento.mensaje || 'Sin mensaje detallado'}`);
+            }
+
+            response = resultadoDocumento;
+            
+            // 2. Ejecutar SP solo si los documentos fueron exitosamente guardados (o si no había documentos)
+            let sql = `CALL SP_CONCLUIR_ASUNTO (?, ?)`;
+            const result = await db.query(sql, [
+                postData.idAsunto,
+                postData.idUsuario
+            ]);
+            
+            response = JSON.parse(JSON.stringify(result[0][0]));
+        }else{
+            response ={
+                status: 404,
+                message: "Faltan documentos para concluir el asunto."
+            }
+        }
+
+        return response;
+
+    } catch (ex) {
+        throw ex;
+    }
+}
+
 
 
 
@@ -411,7 +459,8 @@ module.exports = {
     turnarAsunto,
     reemplazarDocumento,
     agregarAnexos,
-    eliminarDocumento
+    eliminarDocumento,
+    concluirAsunto
 
 }
 async function almacenaListaArchivos(list, directorioAnexos, directoryBd, idUsuarioRegistra, idAsunto) {

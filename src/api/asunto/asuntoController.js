@@ -101,6 +101,15 @@ async function eliminarDocumento(req, res) {
         res.status(500).json(utils.errorGenerico(ex));
     }
 }
+async function concluirAsunto(req, res) {
+    try {
+        const postData = req.body;
+            let data = await asuntoDAO.concluirAsunto(postData);
+            return res.status(200).json(data);
+    } catch (ex) {
+        res.status(500).json(utils.errorGenerico(ex));
+    }
+}
 module.exports = {
     registrarAsunto,
     consultarAsuntosUR,
@@ -110,5 +119,6 @@ module.exports = {
     turnarAsunto,
     reemplazarDocumento,
     agregarAnexos,
-    eliminarDocumento
+    eliminarDocumento,
+    concluirAsunto
 }
