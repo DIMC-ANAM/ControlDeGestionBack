@@ -43,7 +43,7 @@ async function registrarAsunto(postData) {
         // Validar respuesta del procedimiento almacenado
         console.log(result);
         if (result[0]?.[0]?.status == 200) {
-            
+
             response = { ...result[0][0] };
             response.model = result[1]?.[0] || {};
             response.docP = null;
@@ -107,7 +107,7 @@ async function registrarAsunto(postData) {
 
         return response;
     } catch (ex) {
-        console.error("Error en registrarAsunto:", ex); 
+        console.error("Error en registrarAsunto:", ex);
         return {
             status: -1,
             message: "Ocurrió un error interno, contactar a soporte técnico.",
@@ -171,12 +171,12 @@ async function consultarExpedienteAsunto(postData) {
         )`;
 
         let result = await db.query(sql, [postData.idAsunto]);
-        response = JSON.parse(JSON.stringify(result[0][0]));        
+        response = JSON.parse(JSON.stringify(result[0][0]));
 
         if (response.status == 200) {
             response.model = {
-                documentos: JSON.parse(JSON.stringify(result[1])),  
-                
+                documentos: JSON.parse(JSON.stringify(result[1])),
+
                 /* documento: JSON.parse(JSON.stringify(result[1][0])), */
                 anexos: JSON.parse(JSON.stringify(result[2])),
                 respuestas: JSON.parse(JSON.stringify(result[3])),
@@ -190,7 +190,7 @@ async function consultarExpedienteAsunto(postData) {
 
 async function consultarTurnados(postData) {
     let response = {};
-    try {        
+    try {
 
         let sql = `CALL SP_CONSULTAR_TURNADOS (
             ?
@@ -209,27 +209,27 @@ async function consultarTurnados(postData) {
 }
 
 async function turnarAsunto(postData) {
-    let response = {};    
+    let response = {};
     try {
         const sql = `CALL SP_TURNAR_ASUNTO (
             ?,?,?,?
         )`;
 
         for (const element of postData.listaTurnados) {
-            if(element.idTurnado){
+            if (element.idTurnado) {
                 continue;
             }
             const result = await db.query(sql, [
-                element.idAsunto ,
-                element.idUnidadResponsable ,
-                element.idInstruccion ,
-                element.idUsuarioAsigna 
+                element.idAsunto,
+                element.idUnidadResponsable,
+                element.idInstruccion,
+                element.idUsuarioAsigna
             ]);
-            
+
             // Validar respuesta del procedimiento almacenado
             if (result[0]?.[0]?.status == 200) {
-                response = { ...result[0][0] };            
-                
+                response = { ...result[0][0] };
+
             } else {
                 response = { status: 500, message: 'Error en la ejecución del procedimiento almacenado.' };
                 return;
@@ -249,7 +249,7 @@ async function turnarAsunto(postData) {
     }
 }
 async function reemplazarDocumento(postData) {
-    let response = {};    
+    let response = {};
     try {
         const sql = `CALL SP_REEMPLAZAR_DOCUMENTO_ASUNTO (?, ?, ?, ?, ?, ?, ?)`;
 
@@ -292,14 +292,14 @@ async function reemplazarDocumento(postData) {
             postData.documento.size,
             postData.idUsuarioRegistra,
             postData.idDocumentoReemplazo,
-            
+
 
         ]);
 
         if (Array.isArray(resultFileBD3) && resultFileBD3[0]?.[0]) {
             response = resultFileBD3[0][0];
-            if (response.status == 200 && postData.urlReemplazo) {                
-                if (postData.urlReemplazo !== finalFileDocPrincipal.fileNameBd) {                    
+            if (response.status == 200 && postData.urlReemplazo) {
+                if (postData.urlReemplazo !== finalFileDocPrincipal.fileNameBd) {
                     await utils.unlinkFile(postData.urlReemplazo);
                 }
             }
@@ -313,7 +313,7 @@ async function reemplazarDocumento(postData) {
 
         return response;
     } catch (ex) {
-        console.error("Error al Reemplazar documento:", ex); 
+        console.error("Error al Reemplazar documento:", ex);
         return {
             status: -1,
             message: "Ocurrió un error interno, contactar a soporte técnico.",
@@ -325,29 +325,29 @@ async function reemplazarDocumento(postData) {
     }
 }
 async function eliminarDocumento(postData) {
-    let response = {};    
+    let response = {};
     try {
-        const sql = `CALL SP_ELIMINAR_DOCUMENTO_ASUNTO (?)`;  
+        const sql = `CALL SP_ELIMINAR_DOCUMENTO_ASUNTO (?)`;
 
 
         // Llamar al procedimiento almacenado
-        const resultDeleteBD = await db.query(sql, [            
+        const resultDeleteBD = await db.query(sql, [
             postData.idDocumentAsunto
         ]);
         const resultInfo = resultDeleteBD?.[0]?.[0]; // Primer result set: status y message
         const resultRuta = resultDeleteBD?.[1]?.[0]; // Segundo result set: model
-        
+
         if (Array.isArray(resultDeleteBD) && resultDeleteBD[0]?.[0]) {
             response.status = resultInfo.status;
             response.message = resultInfo.message;
             response.model = resultRuta?.model || null;
 
-            if (response.status == 200 && response.model && response.model !== "/") {                
+            if (response.status == 200 && response.model && response.model !== "/") {
                 try {
                     await utils.unlinkFile(response.model);
                 } catch (unlinkErr) {
                     console.warn("No se pudo eliminar el archivo:", unlinkErr);
-                }               
+                }
             }
         } else {
             console.warn("Respuesta inesperada del procedimiento almacenado.");
@@ -358,7 +358,7 @@ async function eliminarDocumento(postData) {
         }
         return response;
     } catch (ex) {
-        console.error("Error al eliminar el documento:", ex); 
+        console.error("Error al eliminar el documento:", ex);
         return {
             status: -1,
             message: "Ocurrió un error interno, contactar a soporte técnico.",
@@ -370,7 +370,7 @@ async function eliminarDocumento(postData) {
     }
 }
 async function agregarAnexos(postData) {
-    let response = {};    
+    let response = {};
     try {
         const directorioAnexos = path.resolve(`./src/documentos/Asuntos/Asunto-${postData.folio}/Anexos`);
         utils.ensureDirectoryExistsSync(directorioAnexos);
@@ -386,12 +386,12 @@ async function agregarAnexos(postData) {
             );
             response = anexosResult[0];
         } else {
-            response= [];
+            response = [];
         }
 
         return response;
     } catch (ex) {
-        console.error("Error al agregar los documentos:", ex); 
+        console.error("Error al agregar los documentos:", ex);
         return {
             status: -1,
             message: "Ocurrió un error interno, contactar a soporte técnico.",
@@ -405,55 +405,80 @@ async function agregarAnexos(postData) {
 
 async function concluirAsunto(postData) {
     let response = {};
+    const archivosGuardados = [];
     try {
-        // 1. Guardar documentos
+        // 1. Validar que existan documentos
+        if (!Array.isArray(postData.documentos) || postData.documentos.length === 0) {
+            return {
+                status: 404,
+                message: "Faltan documentos para concluir el asunto."
+            };
+        }
+
+        // 2. Guardar documentos primero
         const directorioConclusion = path.resolve(`./src/documentos/Asuntos/Asunto-${postData.folio}/Conclusion`);
         utils.ensureDirectoryExistsSync(directorioConclusion);
         const directoryBdConclusion = `documentos/Asuntos/Asunto-${postData.folio}/Conclusion`;
 
-        // Validación: documentos deben existir y guardarse exitosamente
-        if (Array.isArray(postData.documentos) && postData.documentos.length > 0) {
-            const documentosResult = await almacenaListaArchivos(
-                postData.documentos,
-                directorioConclusion,
-                directoryBdConclusion,
-                postData.idUsuario,
-                postData.idAsunto
-            );
+        const documentosResult = await almacenaListaArchivos(
+            postData.documentos,
+            directorioConclusion,
+            directoryBdConclusion,
+            postData.idUsuario,
+            postData.idAsunto
+        );
 
-            // Si hubo error en el guardado, lo lanzamos y no se ejecuta el SP
-            const resultadoDocumento = documentosResult[0];
-            if (resultadoDocumento.error) {
-                throw new Error(`Error al guardar documentos: ${resultadoDocumento.mensaje || 'Sin mensaje detallado'}`);
+        // Verificar guardado
+        for (const doc of documentosResult) {
+            if (doc.error) {
+                throw new Error(`Error al guardar documento: ${doc.mensaje || 'Sin mensaje detallado'}`);
             }
-
-            response = resultadoDocumento;
-            
-            // 2. Ejecutar SP solo si los documentos fueron exitosamente guardados (o si no había documentos)
-            let sql = `CALL SP_CONCLUIR_ASUNTO (?, ?)`;
-            const result = await db.query(sql, [
-                postData.idAsunto,
-                postData.idUsuario
-            ]);
-            
-            response = JSON.parse(JSON.stringify(result[0][0]));
-        }else{
-            response ={
-                status: 404,
-                message: "Faltan documentos para concluir el asunto."
-            }
+            archivosGuardados.push(doc.rutaCompleta); // guardamos la ruta por si hay que borrarlos
         }
+
+        // 3. Ejecutar SP para concluir
+        const sql = `CALL SP_CONCLUIR_ASUNTO (?, ?)`;
+        const result = await db.query(sql, [
+            postData.idAsunto,
+            postData.idUsuario
+        ]);
+        const spResponse = JSON.parse(JSON.stringify(result[0][0]));
+
+        // 4. Si SP falla → rollback: eliminar los documentos guardados
+        if (spResponse.status !== 200) {
+            for (const ruta of archivosGuardados) {
+                try { fs.unlinkSync(ruta); } catch (e) { /* ignoramos si falla el borrado */ }
+            }
+            return spResponse;
+        }
+
+        // 5. OK → respondemos éxito + documentos
+        response = {
+            status: 200,
+            message: "Asunto concluido correctamente",
+            model: {
+                ...spResponse,
+                documentos: documentosResult
+            }
+        };
 
         return response;
 
     } catch (ex) {
-        throw ex;
+        // rollback si ya había guardado algo
+        for (const ruta of archivosGuardados) {
+            try { fs.unlinkSync(ruta); } catch (e) { }
+        }
+        return {
+            status: 500,
+            message: `Error interno: ${ex.message}`
+        };
     }
 }
 async function editarAsunto(postData) {
     let response = {};
     try {
-        
+
         let sql = `CALL SP_EDITAR_ASUNTO (        
         ?,?,?,?,?,
         ?,?,?,?,?,
