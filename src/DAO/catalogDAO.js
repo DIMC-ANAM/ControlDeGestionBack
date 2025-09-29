@@ -145,96 +145,115 @@ async function registrarPrioridad(postData){
     }
 }
 
-    //Actualizar tema - penndiente
+// funciones de determinantes
+async function insertarDeterminantes(postData) {
+  let response = {};
+  try {
+    let sql = 'CALL SP_DETERMINANTES_INSERT(?,?,?,?,?,?)';
+    let result = await db.query(sql, [
+      postData.nivel || null,
+      postData.unidadDeNegocio || null,
+      postData.unidadAdministrativa || null,
+      postData.area || null,
+      postData.determinante || null,
+      postData.dependencia || null,
+    ]);
+  
+    response = JSON.parse(JSON.stringify(result[0][0]));
+    if (response.status === 200) {
+      response.model = JSON.parse(JSON.stringify(result[1][0]));
+    }
+    return response;
 
-    //Desactivar tema - pendiente
+  } catch(ex) {
+    throw ex;
+  }
+}
 
-    //SP Create sobre tabla determinantes 
-    async function insertarDeterminantes(postData ){
-      let response = {};                          //evaluar posibilidad de volverlas constantes 
-      try {
-        let sql = 'CALL SP_DETERMINANTES_INSERT(?,?,?,?,?,?)';
-        let result = await db.query(sql, [
-          postData.nivel || null,
-          postData.unidadDeNegocio || null,
-          postData.unidadAdministrativa || null,
-          postData.area || null,
-          postData.determinante || null,
-          postData.dependencia || null,
-        ]);
+
+
+async function consultarDeterminantes(postData) {
+  let response = {};
+  try {
+    let sql = 'CALL SP_DETERMINANTES_READ(?)';
+    const id = Number(postData?.id) || 0;
+    let result = await db.query(sql, [id]);
+
+    response = JSON.parse(JSON.stringify(result[0][0]));
+    if (response.status == 200) {
+      const dataSet = JSON.parse(JSON.stringify(result[1] || []));
+      response.model = (id === 0) ? dataSet : (dataSet[0] || null);
+    }
+    return response;
+
+  } catch(ex) {
+    throw ex;
+  }
+}
+
+
+  // async function consultarDeterminantes(postData){
+  //   let response = {};
+  //   try{
+  //     let sql = 'CALL SP_DETERMINANTES_READ(?)';
+  //     let result = await db.query(sql, [postData.id || 0]);
       
-        response = JSON.parse(JSON.stringify(result[0][0]));
-        if (response.status === 200) {
-          response.model = JSON.parse(JSON.stringify(result[1][0]));
-        }
-        return response;
+  //     response = JSON.parse(JSON.stringify(result[0][0]));
+  //     if (response.status == 200){
+  //       response.model = JSON.parse(JSON.stringify(result[1][1]));
+  //     }
+  //     return response;
 
-    } catch(ex){
-        throw ex;
+  //   } catch(ex){
+  //     throw ex;
+  //   }
+  // }
+
+
+ // actualiza determinantes
+ 
+async function actualizarDeterminantes(postData) {
+  let response = {};
+  try {
+    let sql = 'CALL SP_DETERMINANTES_UPDATE(?,?,?,?,?,?,?)';
+    let result = await db.query(sql, [
+      postData.id || 0,
+      postData.nivel || null,
+      postData.unidadDeNegocio || null,
+      postData.unidadAdministrativa || null,
+      postData.area || null,
+      postData.determinante || null, 
+      postData.dependencia || null,
+    ]);
+
+    response = JSON.parse(JSON.stringify(result[0][0]));
+    if (response.status == 200) {
+      response.model = JSON.parse(JSON.stringify(result[1]?.[0] || {}));
     }
+    return response;
+  } catch(ex) {
+    throw ex;
   }
+}
 
-  // SP Read sobre la tabla determinantes
 
-  async function consultarDeterminantes(postData){
-    let response = {};
-    try{
-      let sql = 'CALL SP_DETERMINANTES_READ(?)';
-      let result = await db.query(sql, [postData.id || 0]);
-      
-      response = JSON.parse(JSON.stringify(result[0][0]));
-      if (response.status == 200){
-        response.model = JSON.parse(JSON.stringify(result[1][0]));
-      }
-      return response;
+async function desactivarDeterminantes(postData) {
+  let response = {};
+  try {
+    let sql = 'CALL SP_DETERMINANTES_DELETE(?)';
+    let result = await db.query(sql, [postData.id || 0]);
 
-    } catch(ex){
-      throw ex;
+    response = JSON.parse(JSON.stringify(result[0][0]));
+    if (response.status == 200) {
+      response.model = JSON.parse(JSON.stringify(result[1][0]));
     }
+    return response;
+    
+  } catch(ex) {
+    throw ex;
   }
+}
 
-  async function actualizarDeterminantes(postData){
-    let response = {}
-    try{
-      let sql = 'CALL SP_DETERMINANTES_UPDATE(?,?,?,?,?,?,?)';
-      let result = await db.query(sql, [
-        postData.id || 0,
-        postData.nivel || null,
-        postData.unidadDeNegocio || null,
-        postData.unidadAdministrativa || null,
-        postData.area || null,
-        postData.determinante || null, 
-        postData.dependencia || null,
-      ]);
-
-      response = JSON.parse(JSON.stringify(result[0][0]));
-      if(response.status == 200){
-        response.model = JSON.parse(JSON.stringify(result[1][0]));
-      }
-      return response;
-    }catch(ex){
-      throw ex
-    }
-  }
-
-  async function desactivarDeterminantes(postData){
-    let response = {};
-    try{
-      let sql = 'CALL SP_DETERMINANTES_DELETE(?)';
-      let result = await db.query(sql, [
-        postData.id || 0
-      ]);
-
-      response = JSON.parse(JSON.stringify(result[0][0]));
-      if (response.status == 200){
-        response.model = JSON.parse(JSON.stringify(result[1][0]));
-      }
-      return response;
-      
-    }catch (ex){
-      throw ex
-    }
-  }
 
 
 
@@ -253,5 +272,6 @@ module.exports = {
   insertarDeterminantes,
   consultarDeterminantes,
   actualizarDeterminantes,
+  //
   desactivarDeterminantes,
 };
