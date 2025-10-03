@@ -4,8 +4,8 @@ const utils  = require("../api/utils/utils");
 async function logIn(postData) {
     let response = {};
     try {
-        let cryptPassw = await utils.encryptPassword(postData.password);
-        let sql = `CALL api_SP_LOG_IN (?,?)`;
+        let cryptPassw = await utils.encriptarContrasena(postData.password);
+        let sql = `CALL api_SP_LOG_IN (?,?,? )`;
         let result = await db.query(sql, [postData.user, cryptPassw]);
         
         response = JSON.parse(JSON.stringify(result[0][0]));
