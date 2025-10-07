@@ -11,7 +11,7 @@ const config = require("../../config/config");
 async function logIn(req, res) {
     try {
         const postData = req.body;
-        const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        const clientIp = getClientIp(req);
 
         if (Object.keys(postData).length !== 0) {
             postData.ip = clientIp;
@@ -171,6 +171,19 @@ async function updateUser(req, res) {
         res.status(500).json(utils.errorGenerico(ex));
     }
 }
+async function getUserlog(req, res) {
+    try {
+        const postData = req.body;
+        if (Object.keys(postData).length !== 0) {   
+            let data = await userDAO.getUserlog(postData);                                    
+            return res.status(200).json(data);
+        } else {
+            res.status(400).json(utils.invalidPostData(postData));
+        }
+    } catch (ex) {
+        res.status(500).json(utils.errorGenerico(ex));
+    }
+}
 
 /**
  * activa un usuario existente
@@ -200,5 +213,21 @@ module.exports = {
     updatePassword,
     updateUser,
     activateUser,
-    getUsuariosAdmin
+    getUsuariosAdmin,
+    getUserlog
+}
+
+function getClientIp(req) {
+    let ip = req.headers['x-forwarded-for'];
+    if (ip) {
+        // Puede ser una lista de IPs separadas por coma
+        ip = ip.split(',')[0].trim();
+    } else {
+        ip = req.socket.remoteAddress;
+    }
+    // Si es IPv6 localhost
+    if (ip === '::1') return '127.0.0.1';
+    // Si es IPv6-mapeado a IPv4
+    if (ip && ip.startsWith('::ffff:')) return ip.replace('::ffff:', '');
+    return ip;
 }

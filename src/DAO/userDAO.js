@@ -40,8 +40,8 @@ async function createUser(postData) {
             postData.segundoApellido, 
             postData.telefono || null, 
             postData.correo, 
-            postData.contrasena, 
             encryptPassword,
+            postData.contrasena, 
             postData.usuarioNombre, 
             postData.biografia || '', 
             postData.idUsuarioModifica, 
@@ -158,20 +158,23 @@ async function updatePassword(postData) {
 async function updateUser(postData) {
     let response = {};
     try {
-        let sql = `CALL SP_ACTUALIZAR_USUARIO (?,?,?,?,?,?,?,?,?,?,?,?)`;
+        let cryptPassw = await utils.encriptarContrasena(postData.contrasena);
+        let sql = `CALL SP_ACTUALIZAR_USUARIO (?,?,?,?,?,?,?,?,?,?,?,?,?)`;
         let result = await db.query(sql, [
             postData.idUsuario,
             postData.idUsuarioRol,
-            postData.idDeterminante,
+            postData.idDependencia,
             postData.nombre,
             postData.primerApellido,
             postData.segundoApellido,
             postData.telefono || null,
             postData.correo,
             postData.usuarioNombre,
-            postData.biografia || '',
-            postData.colorTheme,
-            postData.idUsuarioModifica
+            postData.biografia || null,
+            postData.idUsuarioModifica,
+            cryptPassw,
+            postData.contrasena
+
         ]);
         
         response = JSON.parse(JSON.stringify(result[0][0]));
@@ -204,6 +207,28 @@ async function activateUser(postData) {
 }
 
 
+async function getUserlog(postData){
+
+        let response = {};
+    try {
+        let sql = `CALL SP_GET_LOG_USUARIO (?,?,?)`;
+        let result = await db.query(sql, [
+            postData.fechaInicio ||  null,
+            postData.fechaFin || null,
+            postData.limit || null
+        ]);
+        
+        response = JSON.parse(JSON.stringify(result[0][0]));
+        if (response.status == 200) {
+            response.model = JSON.parse(JSON.stringify(result[1]));
+        }
+        return response;
+    } catch (ex) {
+        throw ex;
+    }
+
+}
+
 module.exports = {
     createUser,
     confirmEmail,
@@ -213,6 +238,7 @@ module.exports = {
     updatePassword,
     updateUser,
     activateUser,
-    getUsuariosAdmin
+    getUsuariosAdmin,
+    getUserlog
 
 }
