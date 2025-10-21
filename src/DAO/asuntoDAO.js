@@ -432,34 +432,37 @@ async function agregarAnexos(postData) {
 async function concluirAsunto(postData) {
     let response = {};
     const archivosGuardados = [];
+
     try {
-        // 1. Validar que existan documentos		
-        if (!Array.isArray(postData.documentos) || postData.documentos.length === 0) {
-            return {
-                status: 404,
-                message: "Faltan documentos para concluir el asunto."
-            };
-        }
-
-        // 2. Guardar documentos primero
-        const directorioConclusion = path.resolve(`./src/documentos/Asuntos/Asunto-${postData.folio}/Conclusion`);
-        utils.ensureDirectoryExistsSync(directorioConclusion);
-        const directoryBdConclusion = `documentos/Asuntos/Asunto-${postData.folio}/Conclusion`;
-
-        const documentosResult = await almacenaListaArchivos(
-            postData.documentos,
-            directorioConclusion,
-            directoryBdConclusion,
-            postData.idUsuarioRegistra,
-            postData.idAsunto
-        );
-
-        // Verificar guardado
-        for (const doc of documentosResult) {
-            if (doc.error) {
-                throw new Error(`Error al guardar documento: ${doc.mensaje || 'Sin mensaje detallado'}`);
+        // 1. Validar documentos solo si noRequiereDocumento NO es true
+        if (postData.requiereDocumento) {
+            if (!Array.isArray(postData.documentos) || postData.documentos.length === 0) {
+                return {
+                    status: 404,
+                    message: "Faltan documentos para concluir el asunto."
+                };
             }
-            archivosGuardados.push(doc.rutaCompleta); // guardamos la ruta por si hay que borrarlos
+
+            // 2. Guardar documentos
+            const directorioConclusion = path.resolve(`./src/documentos/Asuntos/Asunto-${postData.folio}/Conclusion`);
+            utils.ensureDirectoryExistsSync(directorioConclusion);
+            const directoryBdConclusion = `documentos/Asuntos/Asunto-${postData.folio}/Conclusion`;
+
+            const documentosResult = await almacenaListaArchivos(
+                postData.documentos,
+                directorioConclusion,
+                directoryBdConclusion,
+                postData.idUsuarioRegistra,
+                postData.idAsunto
+            );
+
+            // Verificar guardado
+            for (const doc of documentosResult) {
+                if (doc.error) {
+                    throw new Error(`Error al guardar documento: ${doc.mensaje || 'Sin mensaje detallado'}`);
+                }
+                archivosGuardados.push(doc.rutaCompleta); // guardamos la ruta por si hay que borrarlos
+            }
         }
 
         // 3. Ejecutar SP para concluir
@@ -478,13 +481,13 @@ async function concluirAsunto(postData) {
             return spResponse;
         }
 
-        // 5. OK → respondemos éxito + documentos
+        // 5. OK → respondemos éxito + documentos si se guardaron
         response = {
             status: 200,
             message: "Asunto concluido correctamente",
             model: {
                 ...spResponse,
-                documentos: documentosResult
+                documentos: postData.noRequiereDocumento ? [] : documentosResult
             }
         };
 
@@ -501,6 +504,7 @@ async function concluirAsunto(postData) {
         };
     }
 }
+
 async function editarAsunto(postData) {
     let response = {};
     try {
