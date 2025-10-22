@@ -1,7 +1,7 @@
 const winston = require("../../config/winston");
 var jwt = require('jsonwebtoken')
 var jwtClave = 'DGTIC-jwt_21';
-var jwtTimeToken = 60 * 60 * 24; // expires in 30  hours
+var jwtTimeToken = 10; // expires in 30  hours
 
 
 async function generateToken(req, res) {
@@ -26,33 +26,44 @@ async function generateToken(req, res) {
 }
 
 function validateToken(request, response, next) {
-    return next();
-    var token = request.headers['authorization-ug']
-    var result = { estatus: -1, mensaje: " " }
+
+    var token = request.headers['authorization'];
+    var result = { estatus: -1, mensaje: " " };
+
     if (!token) {
-        result.mensaje = "Authentication token required"
+        result.mensaje = "Token de autenticación requerido";
         return response.status(401).json(result);
     }
-    if (!token.includes("Bearer-UG")) {
-        result.mensaje = "Authentication bearer required"
+    if (!token.includes("Bearer ")) {
+        result.mensaje = "Se requiere un bearer válido";
         return response.status(401).json(result);
     }
-    token = token.replace('Bearer-UG ', '')
+
+    token = token.replace('Bearer ', '');
+
     jwt.verify(token, jwtClave, function (err, user) {
         if (err) {
-            return response.status(401).json({ 
-                estatus: -1, 
-                mensaje: "Invalid token" 
+            if (err.name === 'TokenExpiredError') {
+                winston.warn(`ERR 401: Intento de acceso con token expirado.`);
+                return response.status(401).json({ 
+                    estatus: -1, 
+                    mensaje: "Token expirado" 
+                });
+            }
+            winston.warn(`ERR 403: Intento de acceso con token inválido.`);
+            return response.status(403).json({
+                estatus: -1,
+                mensaje: "Token inválido"
             });
-        } else {
+        } 
 
-            request.userToken = user; // Datos completos
-            
-            // LOG automatico en cada petición
-            winston.info(`- idUsuario: ${user.idUsuario} - ${user.nombreCompleto} - idToken: ${token.substring(0, 8)} - Acción: ${request.url}`);
-        }
+        request.userToken = user; // Datos completos
+
+        // LOG automático en cada petición
+        winston.info(`- idUsuario: ${user.idUsuario} - ${user.nombreCompleto} - idToken: ${token.slice(-16)} - Acción: ${request.url}`);
+
+        next(); 
     });
-    return next();
 }
 
 function generateTokenByUser(user) {
