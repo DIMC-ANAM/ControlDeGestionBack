@@ -62,14 +62,14 @@ async function getUsuariosAdmin(req, res) {
             res.status(400).json(utils.invalidPostData(postData));
         }
     } catch (ex) {
-        res.status(500).json(utils.genericError(ex));
+        res.status(500).json(utils.errorGenerico(ex));
     }
 }
 
 
 /**
  * 
- * @param {*} req 
+ * @param {*} req 	
  * @param {*} res 
  */
 async function confirmEmail(req, res) {
@@ -84,7 +84,7 @@ async function confirmEmail(req, res) {
             res.status(400).json(utils.invalidPostData(postData));
         }
     } catch (ex) {
-        res.status(500).json(utils.genericError(ex));
+        res.status(500).json(utils.errorGenerico(ex));
     }
 }
 
@@ -104,7 +104,7 @@ async function getUserByHash(req, res) {
             res.status(400).json(utils.invalidPostData(postData));
         }
     } catch (ex) {
-        res.status(500).json(utils.genericError(ex));
+        res.status(500).json(utils.errorGenerico(ex));
     }
 }
 
@@ -128,7 +128,7 @@ async function resetPasswordRequest(req, res) {
             res.status(400).json(utils.invalidPostData(postData));
         }
     } catch (ex) {
-        res.status(500).json(utils.genericError(ex));
+        res.status(500).json(utils.errorGenerico(ex));
     }
 }
 
@@ -148,7 +148,7 @@ async function updatePassword(req, res) {
             res.status(400).json(utils.invalidPostData(postData));
         }
     } catch (ex) {
-        res.status(500).json(utils.genericError(ex));
+        res.status(500).json(utils.errorGenerico(ex));
     }
 }
 

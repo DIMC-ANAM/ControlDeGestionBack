@@ -447,6 +447,7 @@ async function agregarAnexos(postData) {
 async function concluirAsunto(postData) {
     let response = {};
     const archivosGuardados = [];
+	let documentosResult = [];
 
     try {
         // 1. Validar documentos solo si noRequiereDocumento NO es true
