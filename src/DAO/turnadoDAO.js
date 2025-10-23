@@ -91,7 +91,7 @@ async function contestarTurnado(postData) {
         const directoryBdTurnados = `documentos/Asuntos/Asunto-${postData.folio}/Turnado-${postData.idTurnado}`;
 
         // Verificar si el usuario es atendedor
-        if (postData.requiereDocumento) {
+        if (!postData.requiereDocumento) {
             // Si es atendedor, omitir el registro de documentos y solo ejecutar contestarTurnado
             let sql = `CALL SP_CONTESTAR_TURNADO (?, ?, ?)`;
             const result = await db.query(sql, [
