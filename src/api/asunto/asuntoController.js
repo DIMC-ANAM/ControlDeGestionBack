@@ -129,6 +129,107 @@ async function consultarHistorial(req, res) {
         res.status(500).json(utils.errorGenerico(ex));
     }
 }
+
+async function descargarExpediente(req, res) {
+    try {
+        const postData = req.body;
+
+        if (postData.id) {
+            let path_ = path.resolve(`./src/documentos/Asuntos/Asunto-${postData.id}`);
+
+            if (fs.existsSync(path_)) {
+                postData.path = path_;
+                utils.generarZip(postData, res);
+            } else {
+                return utils.zipVacio(res);
+            }
+        } else {
+            res.status(400).json(utils.postDataInvalido(postData));
+        }
+    } catch (ex) {
+        res.status(500).json(utils.errorGenerico(ex));
+    }
+}
+
+// Función auxiliar para listar archivos recursivamente
+function getFilesRecursively(dir, fileList = [], relativePath = '') {
+    const files = fs.readdirSync(dir);
+    files.forEach(file => {
+        const filePath = path.join(dir, file);
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+            getFilesRecursively(filePath, fileList, path.join(relativePath, file));
+        } else {
+            fileList.push({
+                name: file,
+                relativePath: path.join(relativePath, file),
+                size: stat.size,
+                type: path.extname(file)
+            });
+        }
+    });
+    return fileList;
+}
+
+async function listarDocumentos(req, res) {
+    try {
+        const postData = req.body;
+        if (!postData.id) {
+            return res.status(400).json({ message: "El ID es requerido." });
+        }
+
+        const folderPath = path.resolve(`./src/documentos/Asuntos/Asunto-${postData.id}`);
+
+        if (fs.existsSync(folderPath)) {
+            const files = getFilesRecursively(folderPath);
+            res.status(200).json(files);
+        } else {
+            res.status(200).json([]); // Retorna lista vacía si no existe carpeta
+        }
+    } catch (ex) {
+        res.status(500).json({ message: "Error al listar documentos", error: ex.message });
+    }
+}
+
+async function verDocumento(req, res) {
+    try {
+        const postData = req.body;
+        if (!postData.id) {
+            return res.status(400).json({ message: "El ID es requerido." });
+        }
+
+        const folderPath = path.resolve(`./src/documentos/Asuntos/Asunto-${postData.id}`);
+        
+        // Si nos envían un relativePath específico, usamos ese. Si no, buscamos el primer PDF.
+        let filePath;
+        if (postData.relativePath) {
+            filePath = path.join(folderPath, postData.relativePath);
+        } else {
+            if (fs.existsSync(folderPath)) {
+                const files = fs.readdirSync(folderPath);
+                const pdfFile = files.find(file => file.toLowerCase().endsWith('.pdf'));
+                if (pdfFile) filePath = path.join(folderPath, pdfFile);
+            }
+        }
+
+        if (filePath && fs.existsSync(filePath)) {
+            // Determinar content type básico
+            const ext = path.extname(filePath).toLowerCase();
+            let contentType = 'application/octet-stream';
+            if (ext === '.pdf') contentType = 'application/pdf';
+            else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+            else if (ext === '.png') contentType = 'image/png';
+
+            res.contentType(contentType);
+            res.sendFile(filePath);
+        } else {
+            res.status(404).json({ message: "Documento no encontrado." });
+        }
+    } catch (ex) {
+        res.status(500).json({ message: "Error interno", error: ex.message });
+    }
+}
+
 module.exports = {
     registrarAsunto,
     consultarAsuntosUR,
@@ -141,5 +242,8 @@ module.exports = {
     eliminarDocumento,
     concluirAsunto,
     editarAsunto,
-    consultarHistorial
+    consultarHistorial,
+    descargarExpediente,
+    verDocumento,
+    listarDocumentos,
 }

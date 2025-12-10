@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const base64 = require('base64topdf');
 const base64Img = require('base64-img');
 const fs = require('fs');
+const Archiver = require("archiver");
 
 function postDataInvalido(postData) {
     return {
@@ -330,6 +331,31 @@ function ensureDirectoryExistsSync(directory) {
     }
 }
 
+function generarZip(data, response) {
+    response.writeHead(200, {
+        'Content-Type': 'application/zip',
+        'Content-disposition': 'attachment; filename=Asunto-' + data.id + '.zip'
+    });
+
+    var zip = Archiver('zip', { zlib: { level: 9 } });
+
+    zip.on('error', function(err) {
+        response.status(500).end();
+    });
+
+    zip.pipe(response);
+
+    let path_ = path.resolve(data.path);
+    zip.directory(path_, false);
+    zip.finalize();
+}
+
+function zipVacio(res) {
+    res.statusMessage = "No se encontró un oficio asignado al turnado.";
+    return res.status(500).send();
+}
+
+
 module.exports = {
     postDataInvalido,
     errorGenerico,
@@ -353,4 +379,6 @@ module.exports = {
     ,nullError
     ,unlinkFile
     ,ensureDirectoryExistsSync
+    ,generarZip
+    ,zipVacio
 }
