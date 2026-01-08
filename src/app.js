@@ -61,7 +61,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(responseInterceptor);
+//app.use(responseInterceptor);
 
 /* API's directory to save all files 
 * (Those are private files)
