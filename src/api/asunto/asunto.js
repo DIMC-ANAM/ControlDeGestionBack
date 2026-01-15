@@ -15,6 +15,9 @@ router.post("/eliminarDocumento", token.validateToken, controller.eliminarDocume
 router.post("/concluirAsunto", token.validateToken, controller.concluirAsunto);
 router.post("/editarAsunto", token.validateToken, controller.editarAsunto);
 router.post("/consultarHistorial", token.validateToken, controller.consultarHistorial);
+router.post("/descargarExpediente", token.validateToken, controller.descargarExpediente);
+router.post("/verDocumento", token.validateToken, controller.verDocumento);
+router.post("/listarDocumentos", token.validateToken, controller.listarDocumentos);
 
 module.exports = router;
 
