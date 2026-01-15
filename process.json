@@ -1,12 +1,15 @@
 {
-  "apps" : [{
-    "name"        : "api-ws",
-    "script"      : "./src/app.js",
-    "env": {
-      "NODE_ENV": "development"
-    },
-    "env_production" : {
-       "NODE_ENV": "production"
+  "apps": [
+    {
+      "name": "api-ws",
+      "script": "./src/app.js",
+      "env_file": "/home/dev/control_de_gestion_qa/back/production.env",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "env_production": {
+        "NODE_ENV": "production"
+      }
     }
-  }]
+  ]
 }
