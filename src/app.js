@@ -106,20 +106,8 @@ app.get('/', function (req, res) {
  * 
  */
 
-if (config.NODE_ENV == config.ENUM_NODE_ENV.Development) {
-    app.listen(app.get("port"), config.HOST, () => {
-        console.log("Starting HTTP server on: ", config.HOST + ":" + app.get("port"));
-    });
-}
-
-
-if (config.NODE_ENV == config.ENUM_NODE_ENV.Production) {
-    
-    /*/https */
-    /* var httpsServer = https.createServer(configHTTPS, app);
-
-    httpsServer.listen(app.get("port"), () => {
-        console.log("Inicio de servidor Https", app.get("puerto"));
-    }); */
-}
+// Initializing the HTTP Server
+app.listen(app.get("port"), () => {
+  console.log("Starting HTTP server on: ", app.get("port"), "NODE_ENV:", config.NODE_ENV);
+});
 
