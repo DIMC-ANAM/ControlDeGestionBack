@@ -29,8 +29,9 @@ app.set("json spaces", 2);
 
 //Middleware
 app.options('*', cors());
-app.use(express.urlencoded({ limit: "20mb", extended: false }));
-app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.json({ limit: "50mb" }));
+
 
 app.use((req, res, next) => {
 
@@ -106,8 +107,20 @@ app.get('/', function (req, res) {
  * 
  */
 
-// Initializing the HTTP Server
-app.listen(app.get("port"), () => {
-  console.log("Starting HTTP server on: ", app.get("port"), "NODE_ENV:", config.NODE_ENV);
-});
 
+if (config.NODE_ENV == config.ENUM_NODE_ENV.Development) {
+    app.listen(app.get("port"), () => {
+        console.log("Starting HTTP server on: ", app.get("port"));
+    });
+}
+
+
+if (config.NODE_ENV == config.ENUM_NODE_ENV.Production) {
+    
+    /*/https */
+    /* var httpsServer = https.createServer(configHTTPS, app);
+
+    httpsServer.listen(app.get("port"), () => {
+        console.log("Inicio de servidor Https", app.get("puerto"));
+    }); */
+}
