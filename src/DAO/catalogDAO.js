@@ -144,10 +144,12 @@ async function registrarTema(postData) {
 async function consultarCantidadesStatus(postData) {
   let response = {};
   try {
-    let sql = `CALL SP_CONSULTAR_CANTIDADES_STATUS(?,?)`;
+    let sql = `CALL SP_CONSULTAR_CANTIDADES_STATUS(?,?,?,?)`;
     let result = await db.query(sql, [
 		postData.opcion, 
-		postData.idUnidadResponsable || null
+		postData.idUnidadResponsable || null,
+    postData.idUsuario,
+    postData.idUsuarioRol
 	]);
 
     response = JSON.parse(JSON.stringify(result[0][0]));
@@ -159,24 +161,24 @@ async function consultarCantidadesStatus(postData) {
     throw ex;
   }
 }
-async function consultarCantidadesStatus(postData) {
-  let response = {};
-  try {
-    let sql = `CALL SP_CONSULTAR_CANTIDADES_STATUS(?,?)`;
-    let result = await db.query(sql, [
-		postData.opcion, 
-		postData.idUnidadResponsable || null
-	]);
+// async function consultarCantidadesStatus(postData) {
+//   let response = {};
+//   try {
+//     let sql = `CALL SP_CONSULTAR_CANTIDADES_STATUS(?,?)`;
+//     let result = await db.query(sql, [
+// 		postData.opcion, 
+// 		postData.idUnidadResponsable || null
+// 	]);
 
-    response = JSON.parse(JSON.stringify(result[0][0]));
-    if (response.status === 200) {
-      response.model = JSON.parse(JSON.stringify(result[1])); 
-    }
-    return response;
-  } catch (ex) {
-    throw ex;
-  }
-}
+//     response = JSON.parse(JSON.stringify(result[0][0]));
+//     if (response.status === 200) {
+//       response.model = JSON.parse(JSON.stringify(result[1])); 
+//     }
+//     return response;
+//   } catch (ex) {
+//     throw ex;
+//   }
+// }
 async function registrarTipoDocumento(postData) {
     let response = {};
     try {
@@ -383,7 +385,7 @@ async function verReporte(postData) {
 async function busquedaAvanzadaTurnados(postData) {
   let response = {};
   try {
-    let sql = `CALL SP_BUSQUEDA_AVANZADA_TURNADOS(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    let sql = `CALL SP_BUSQUEDA_AVANZADA_TURNADOS(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     let result = await db.query(sql, [
       postData.fechaInicio || null,
       postData.fechaFin || null,
@@ -403,7 +405,10 @@ async function busquedaAvanzadaTurnados(postData) {
       postData.ordenamiento || 'fecha',
       postData.direccion || 'DESC',
       postData.limite || 100, 
-      postData.offset || 0,   
+      postData.offset || 0,
+      postData.idUnidadResponsableUsuario,
+      postData.idUsuario,
+      postData.idUsuarioRol,   
     ]);
     response = JSON.parse(JSON.stringify(result[0][0]));
     if (response.status === 200) {
